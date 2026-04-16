@@ -1,1 +1,58 @@
 playwright codegen https://saucedemo.com -> will open the playwright inspector, allows u to record the tests
+
+#context manager - with (wywoluje __enter__, __exit__)
+
+#Fixture to funkcja dostarczająca zasoby do testów (przeglądarka, dane, połączenie).
+#Działa przed testem i po teście (yield).
+
+
+#popup:
+#page.on("dialog", lambda dialog: dialog.accept())
+page.click("button#delete")
+
+# Albo jeśli chcę odczytać wiadomość
+def handle_dialog(dialog):
+    print(f"Alert mówi: {dialog.message}")
+    dialog.accept()
+page.on("dialog", handle_dialog)
+
+#upload pliku w playwright:
+# Metoda 1: input[type=file]
+page.set_input_files('input[type="file"]', 'path/to/file.pdf')
+
+# Metoda 2: przeciągnij i upuść
+page.locator(".dropzone").set_input_files('file.pdf')
+
+# Metoda 3: wiele plików
+page.set_input_files('input[type="file"]', ['file1.pdf', 'file2.jpg'])
+
+
+#gherkin parametry:
+Scenario Outline: Logowanie z różnymi danymi
+  Given użytkownik jest na stronie logowania
+  When wpisze login "<login>" i hasło "<hasło>"
+  Then widzi komunikat "<komunikat>"
+  Examples:
+    | login | hasło | komunikat |
+    | admin | pass  | Witaj admin |
+    | user  | wrong | Błędne hasło |
+    |       | pass  | Login wymagany |
+#dekoratory
+import pytest
+
+@pytest.mark.slow        # znacznik do grupowania
+@pytest.mark.parametrize("a,b,expected", [(1,2,3), (2,3,5)])  # parametryzacja
+def test_add(a, b, expected):
+    assert a + b == expected
+Na pytanie "dekorator własny?" → Można napisać funkcję zwracającą funkcję, ale w testach używam
+głównie parametrize i markerów.
+"Unit testy w Playwright mockują async_playwright, browser, page i context – testuję logikę, nie połączenie."
+"Do testów asynchronicznych używam pytest-asyncio z dekoratorem @pytest.mark.asyncio."
+"Unikam mockowania, gdy testuję integrację z rzeczywistym API – wtedy puszczam testy na środowisku
+staging z prawdziwym Playwright, ale headless."
+"W projekcie oddzielam unit testy (mocki, ms) od integracyjnych i E2E (prawdziwa przeglądarka, s)."
+
+ #najtrudniejszy bug:
+"Asynchroniczne API – test przechodził lokalnie, ale failował w CI.
+Okazało się, że mock zwracał odpowiedź zbyt szybko i nie testowałem realnego timeoutu.
+Dodałem wait_for z dynamicznym pollingiem.

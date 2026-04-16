@@ -19,7 +19,7 @@ def test_inventory(page: Page):
     # for opening the trace u can use playwright show-trace /path-to/trace.zip
 
 
-# ========== UNIT TESTY (mockowane, bez przeglądarki) – DODANE ==========
+# ========== UNIT TESTY (mockowane, bez przeglądarki) ==========
 
 def test_title_unit():
     """Unit test – mockujemy Page, nie otwieramy przeglądarki"""
